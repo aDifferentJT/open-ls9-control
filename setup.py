@@ -1,6 +1,8 @@
 from distutils.core import setup, Extension
 from distutils.util import get_platform
 
+from os import environ
+
 from pathlib import Path
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
@@ -23,13 +25,19 @@ def extra_link_args():
   elif get_platform().startswith('win'):
     return []
 
+def extra_include_dirs():
+  if get_platform().startswith('macosx'):
+    return []
+  elif get_platform().startswith('win'):
+    return [environ['GSL_INCLUDE']]
+
 module1 = Extension \
   ( 'pyopenls9'
   , language = 'c++'
   , define_macros = define_macros()
   , extra_compile_args = extra_compile_args()
   , extra_link_args = extra_link_args()
-  , include_dirs = ['include']
+  , include_dirs = ['include'] + extra_include_dirs()
   , depends = ['include/LS9.hpp', 'include/RtMidi.h']
   , sources = ['src/python.cpp', 'src/RtMidi.cpp']
   , py_limited_api = True

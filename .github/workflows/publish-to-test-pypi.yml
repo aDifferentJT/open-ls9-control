@@ -30,8 +30,7 @@ jobs:
           cd vcpkg
           ./bootstrap-vcpkg.bat
           vcpkg install ms-gsl
-          ls installed
-          ls installed/x86-windows/include
+          echo "GSL_INCLUDE=$(${PWD}.ToString().Replace("\","/"))/installed/x86-windows/include" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
       - name: Build a binary wheel and a source tarball
         run: python -m build --sdist --wheel --outdir dist/ .
       - name: Upload wheel artifact

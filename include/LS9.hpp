@@ -358,7 +358,7 @@ class LS9 {
             do {
               std::this_thread::sleep_for(10ms);
               cur = clock::now() - startTime;
-              set(param, lerp_and_clamp(startValue, value, static_cast<int32_t>(cur / duration)));
+              set(param, static_cast<int32_t>(lerp_and_clamp(startValue, value, cur / duration)));
             } while (cur < duration);
           }
         }.detach();

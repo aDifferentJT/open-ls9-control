@@ -721,111 +721,11 @@ struct PyLS9 : PyObject {
       );
     Py_RETURN_NONE;
   }
-
-  static auto get(PyLS9* self, PyObject* args) -> PyObject* {
-    try {
-      return lift(&LS9::get, self->ls9, args, true);
-    } catch (LS9::timeout_expired const &) {
-      PyErr_SetNone(PyExc_TimeoutError);
-      return nullptr;
-    }
-          /*
-    PyObject * pyParam;
-    int timeout;
-    if (!PyArg_ParseTuple(args, "O!i", parameter_type, &pyParam, &timeout)) {
-      PyErr_SetString(PyExc_TypeError, "requires two parameters, a Parameter and an int");
-      return nullptr;
-    }
-    auto param = from_PyObject<Parameter>(pyParam);
-    try {
-      auto value = [&] {
-        auto gil = scoped_release_gil{};
-        return self->ls9.get(param, std::chrono::milliseconds{timeout});
-      }();
-      return to_PyObject(value, false).release();
-    } catch (LS9::timeout_expired const &) {
-      PyErr_SetNone(PyExc_TimeoutError);
-      return nullptr;
-    }
-    */
-  }
-
-  static auto set(PyLS9* self, PyObject* args) -> PyObject* {
-    return lift(&LS9::set, self->ls9, args, false);
-  }
-
-  static auto fade(PyLS9* self, PyObject* args) -> PyObject* {
-    try {
-      return lift(&LS9::fade, self->ls9, args, true);
-    } catch (LS9::timeout_expired const &) {
-      PyErr_SetNone(PyExc_TimeoutError);
-      return nullptr;
-    }
-          /*
-    PyObject * pyParam;
-    int value;
-    int duration;
-    int timeout;
-    if (!PyArg_ParseTuple(args, "O!iii", parameter_type, &pyParam, &value, &duration, &timeout)) {
-      PyErr_SetString(PyExc_TypeError, "requires four parameters, a Parameter and three ints");
-      return nullptr;
-    }
-    auto param = from_PyObject<Parameter>(pyParam);
-    try {
-      auto gil = scoped_release_gil{};
-      self->ls9.fade(param, value, std::chrono::milliseconds{duration}, std::chrono::milliseconds{timeout});
-    } catch (LS9::timeout_expired const &) {
-      PyErr_SetNone(PyExc_TimeoutError);
-      return nullptr;
-    }
-    Py_RETURN_NONE;
-    */
-  }
-
-  static auto nextParamTouched(PyLS9* self) -> PyObject* {
-    auto param = [&] {
-      auto gil = scoped_release_gil{};
-      return self->ls9.nextParamTouched();
-    }();
-    return to_PyObject(param, false).release();
-  }
-
-  static auto getChannelName(PyLS9* self, PyObject* args) -> PyObject* {
-    try {
-      return lift(&LS9::getChannelName, self->ls9, args, true);
-    } catch (LS9::timeout_expired const &) {
-      PyErr_SetNone(PyExc_TimeoutError);
-      return nullptr;
-    }
-    /*
-    int ch;
-    int timeout;
-    if (!PyArg_ParseTuple(args, "ii", &ch, &timeout)) {
-      PyErr_SetString(PyExc_TypeError, "requires two int parameters");
-      return nullptr;
-    }
-    try {
-      auto name = [&] {
-        auto gil = scoped_release_gil{};
-        return self->ls9.getChannelName(ch, std::chrono::milliseconds{timeout});
-      }();
-      return to_PyObject(name, false).release();
-    } catch (LS9::timeout_expired const &) {
-      PyErr_SetNone(PyExc_TimeoutError);
-      return nullptr;
-    }
-    */
-  }
 };
 
 static PyMethodDef ls9_methods[] =
   { {"addGlobalCallback", reinterpret_cast<PyCFunction>(PyLS9::addGlobalCallback), METH_O, PyDoc_STR("Add a callback for all parameters")}
   , {"addParamCallback", reinterpret_cast<PyCFunction>(PyLS9::addParamCallback), METH_VARARGS, PyDoc_STR("Add a callback for a parameter")}
-  //, {"get", reinterpret_cast<PyCFunction>(PyLS9::get), METH_VARARGS, PyDoc_STR("Get the value of a parameter")}
-  //, {"set", reinterpret_cast<PyCFunction>(PyLS9::set), METH_VARARGS, PyDoc_STR("Set the value of a parameter")}
-  //, {"fade", reinterpret_cast<PyCFunction>(PyLS9::fade), METH_VARARGS, PyDoc_STR("Fade a parameter")}
-  //, {"nextParamTouched", reinterpret_cast<PyCFunction>(PyLS9::nextParamTouched), METH_NOARGS, PyDoc_STR("Get the next parameter touched")}
-  //, {"getChannelName", reinterpret_cast<PyCFunction>(PyLS9::getChannelName), METH_VARARGS, PyDoc_STR("Get the name of a channel")}
   , {"get", memberTimeout<&LS9::get, &PyLS9::ls9, true>, METH_VARARGS, PyDoc_STR("get the value of a parameter")}
   , {"set", member<&LS9::set, &PyLS9::ls9, false>, METH_VARARGS, PyDoc_STR("Set the value of a parameter")}
   , {"fade", memberTimeout<&LS9::fade, &PyLS9::ls9, true>, METH_VARARGS, PyDoc_STR("Fade a parameter")}

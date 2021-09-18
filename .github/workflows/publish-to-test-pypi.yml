@@ -30,7 +30,8 @@ jobs:
           cd vcpkg
           ./bootstrap-vcpkg.bat
           vcpkg install ms-gsl
-          ls
+          ls installed
+          ls installed/x86-windows/include
       - name: Build a binary wheel and a source tarball
         run: python -m build --sdist --wheel --outdir dist/ .
       - name: Upload wheel artifact

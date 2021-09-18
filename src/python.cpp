@@ -733,8 +733,8 @@ struct PyLS9 : PyObject {
     auto self = selfObject.get<PyLS9>();
   
     char const * portName;
-    static char* kwlist[] = {"portName", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "s", kwlist, &portName)) {
+    static char const * kwlist[] = {"portName", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "s", const_cast<char**>(kwlist), &portName)) {
       PyErr_SetString(PyExc_TypeError, "requires a single string parameter");
       return nullptr;
     }

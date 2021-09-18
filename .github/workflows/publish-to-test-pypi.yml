@@ -1,10 +1,12 @@
 name: Publish Python 🐍 distributions 📦 to PyPI and TestPyPI
 
-on: push
+on:
+  push:
+  create:
 
 jobs:
-  build-n-publish:
-    name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+  build:
+    name: Build wheels
     runs-on: macos-latest
 
     steps:
@@ -20,6 +22,23 @@ jobs:
           brew install cpp-gsl
       - name: Build a binary wheel and a source tarball
         run: python -m build --sdist --wheel --outdir dist/ .
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheel_${{runner.os}}
+          path: |
+            dist
+            !dist/**/*.md
+          
+  publish:
+    name: Publish to PyPI and TestPyPI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download wheel artifact (macOS)
+        uses: actions/download-artifact@v2
+        with:
+          name: wheel_macOS
       - name: Publish distribution 📦 to Test PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:

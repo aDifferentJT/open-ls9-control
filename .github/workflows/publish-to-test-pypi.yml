@@ -25,19 +25,19 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: wheel_${{runner.os}}
-          path: |
-            dist/
-            !dist/**/*.md
+          path: dist
           
   publish:
     name: Publish to PyPI and TestPyPI
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Download wheel artifact (macOS)
+      - name: Download artifacts
         uses: actions/download-artifact@v2
-      - name: ls
-        run: ls wheel_macOS
+      - name: Move artifacts into dist
+        run: |
+          mkdir dist
+          mv wheel_*/* dist/
       - name: Publish distribution 📦 to Test PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:

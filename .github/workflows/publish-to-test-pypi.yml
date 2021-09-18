@@ -56,9 +56,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v2
       - name: Move artifacts into dist
-        run: |
-          mkdir dist
-          mv wheel_*/* dist/
+        run: mv wheel_*/* dist/
       - name: ls dist
         run: ls dist
       - name: Publish distribution 📦 to PyPI

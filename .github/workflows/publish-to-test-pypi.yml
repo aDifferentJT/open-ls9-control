@@ -37,7 +37,7 @@ jobs:
       - name: Download wheel artifact (macOS)
         uses: actions/download-artifact@v2
       - name: ls
-        run: ls
+        run: ls wheel_macOS
       - name: Publish distribution 📦 to Test PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:

@@ -30,8 +30,9 @@ class Parameter:
 
 ### The LS9 class
 
-In C++ the LS9 class is constructed with the port name as a string and exposes the following methods:
+In C++ the LS9 class is constructed with the port name as a std::string_view and exposes the following methods:
 
+- static auto portNames() -> std::vector<std::string>
 - void addGlobalCallback(std::function<void(Parameter, int32_t)> callback)
 - void addParamCallback(Parameter param, std::function<void(Parameter, int32_t)> callback)
 - auto get(Parameter param, std::chrono::milliseconds timeout) -> int32_t
@@ -40,5 +41,6 @@ In C++ the LS9 class is constructed with the port name as a string and exposes t
 - auto nextParamTouched() -> Parameter
 - auto getChannelName(int ch, std::chrono::milliseconds timeout) -> std::string
 
-The Python class is much the same, any callable can be used where a std::function is expected and an integer number of milliseconds is used where a std::chrono::milliseconds is expected.
+The Python class is much the same: any callable can be used where a std::function is expected and an integer number of milliseconds is used where a std::chrono::milliseconds is expected.
+It also has the portNames static method which returns a list of strings.
 

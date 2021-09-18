@@ -11,13 +11,14 @@ module1 = Extension \
   , extra_compile_args = ['--std=c++17']
   , extra_link_args = ['-framework', 'CoreMIDI', '-framework', 'CoreAudio', '-framework', 'CoreFoundation']
   , include_dirs = ['include']
-  , sources = ['src/RtMidi.cpp', 'src/python.cpp']
+  , depends = ['include/LS9.hpp', 'include/RtMidi.h']
+  , sources = ['src/python.cpp', 'src/RtMidi.cpp']
   , py_limited_api = True
   )
 
 setup \
   ( name = 'pyopenls9'
-  , version = '1.0.0'
+  , version = '1.1.0'
   , description = 'A library to control the Yamaha LS9'
   , author = 'Jonathan Tanner'
   , url = 'http://github.com/nixCodeX/open-ls9-control'

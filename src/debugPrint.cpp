@@ -20,7 +20,7 @@ int main(int, char**) {
 
     ls9.addGlobalCallback(&mycallback);
 
-    ls9.fade({51, 0, 10}, 0, 5s);
+    ls9.fade({51, 0, 10}, 0, 5s, 1s);
 
     std::cout << "\nReading MIDI input ... press <enter> to quit.\n";
     char input;

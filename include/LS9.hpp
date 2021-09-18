@@ -1,10 +1,13 @@
 #ifndef LS9_hpp
 #define LS9_hpp
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <future>
+#include <iterator>
 #include <stdexcept>
 #include <sstream>
 #include <string>
@@ -261,7 +264,45 @@ class LS9 {
       midiOut.sendMessage(reinterpret_cast<uint8_t const *>(&x), sizeof(x));
     }
 
+    template <typename T>
+    struct PortNameIt {
+      using difference_type = unsigned int;
+      using value_type = std::string;
+      using pointer = void;
+      using reference = std::string&;
+      using iterator_category = std::bidirectional_iterator_tag;
+
+      T& x;
+      unsigned int i;
+
+      friend auto operator==(PortNameIt lhs, PortNameIt rhs) { return &lhs.x == &rhs.x && lhs.i == rhs.i; }
+      friend auto operator!=(PortNameIt lhs, PortNameIt rhs) { return !(lhs == rhs); } // TODO: Unnecessary
+
+      auto operator++() { i++; return *this; }
+      auto operator++(int) { auto tmp = *this; operator++(); return tmp; }
+
+      auto operator*() { return x.getPortName(i); }
+    };
+
   public:
+    static auto portNames() -> std::vector<std::string> {
+      auto midiIn = RtMidiIn{};
+      auto midiOut = RtMidiOut{};
+
+      auto ret = std::vector<std::string>{};
+      ret.reserve(std::min(midiIn.getPortCount(), midiOut.getPortCount()));
+
+      std::set_intersection
+        ( PortNameIt<RtMidiIn>{midiIn, 0}
+        , PortNameIt<RtMidiIn>{midiIn, midiIn.getPortCount()}
+        , PortNameIt<RtMidiOut>{midiOut, 0}
+        , PortNameIt<RtMidiOut>{midiOut, midiOut.getPortCount()}
+        , std::back_insert_iterator{ret}
+        );
+
+      return ret;
+    }
+
     LS9(std::string_view portName) {
       for (auto i = 0u; i < midiIn.getPortCount(); i += 1) {
         if (midiIn.getPortName(i) == portName) {

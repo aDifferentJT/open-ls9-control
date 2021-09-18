@@ -169,6 +169,10 @@ namespace {
   };
   
   template <typename> struct iterator_name;
+
+  template <> struct iterator_name<std::vector<std::string>> {
+    static constexpr auto name = "vector<string>";
+  };
   
   template <typename T>
   static PyType_Slot py_iterator_slots[] =
@@ -584,6 +588,54 @@ constexpr auto tuple_concat(std::tuple<Ts...> const & xss) noexcept {
   return std::apply(std::tuple_cat<Ts const &...>, xss);
 }
 
+template <typename Ret>
+auto lift(auto (*f)() -> Ret, PyObject* pyArgs, bool releaseGIL) -> PyObject* {
+  auto f2 = [&] {
+    auto gil = releaseGIL ? std::make_optional<scoped_release_gil>() : std::nullopt;
+    return (*f)();
+  };
+  if constexpr (std::is_void_v<Ret>) {
+    f2();
+    Py_RETURN_NONE;
+  } else {
+    return to_PyObject(f2(), false).release();
+  }
+}
+
+template <typename Ret, typename ...Args, std::size_t ...Is>
+auto lift_impl(auto (*f)(Args...) -> Ret, PyObject* pyArgs, bool releaseGIL, std::index_sequence<Is...>) -> PyObject* {
+  auto args = std::tuple{PyObject_conv<Args>::parse_type()...};
+  auto format = (std::string{PyObject_conv<Args>::format} + ... + ""s);
+  if( std::apply
+      ( [&](auto& ...args) { return PyArg_ParseTuple(pyArgs, format.c_str(), &args...); }
+      , tuple_concat(tuple_map([] (auto& x) { return tuple_to_references(x); }, args))
+      )
+    ) {
+    try {
+      auto parsed_args = std::tuple{std::apply(PyObject_conv<Args>::post_parse, std::get<Is>(args))...};
+      auto f2 = [&] {
+        auto gil = releaseGIL ? std::make_optional<scoped_release_gil>() : std::nullopt;
+        return (*f)(std::move(std::get<Is>(parsed_args))...);
+      };
+      if constexpr (std::is_void_v<Ret>) {
+        f2();
+        Py_RETURN_NONE;
+      } else {
+        return to_PyObject(f2(), false).release();
+      }
+    } catch (from_PyObject_failed const &) {
+      return nullptr;
+    }
+  } else {
+    return nullptr;
+  }
+}
+
+template <typename Ret, typename ...Args>
+auto lift(auto (*f)(Args...) -> Ret, PyObject* pyArgs, bool releaseGIL) -> PyObject* {
+  return lift_impl(f, pyArgs, releaseGIL, std::index_sequence_for<Args...>{});
+}
+
 template <typename T, typename Ret>
 auto lift(auto (T::*f)() -> Ret, T& obj, PyObject* pyArgs, bool releaseGIL) -> PyObject* {
   auto f2 = [&] {
@@ -645,6 +697,21 @@ struct member_t<f, x, releaseGIL> {
 template <auto f, auto x, bool releaseGIL>
 auto member(PyObject* obj, PyObject* pyArgs) -> PyObject* {
   return member_t<f, x, releaseGIL>::run(obj, pyArgs);
+}
+
+template <auto f, bool releaseGIL>
+struct staticmember_t;
+
+template <typename Ret, typename ...Args, auto (*f)(Args...) -> Ret, bool releaseGIL>
+struct staticmember_t<f, releaseGIL> {
+  static auto run(PyObject* pyArgs) -> PyObject* {
+    return lift(f, pyArgs, releaseGIL);
+  }
+};
+
+template <auto f, bool releaseGIL>
+auto staticmember(PyObject*, PyObject* pyArgs) -> PyObject* {
+  return staticmember_t<f, releaseGIL>::run(pyArgs);
 }
 
 template <auto f, auto x, bool releaseGIL>
@@ -726,6 +793,7 @@ struct PyLS9 : PyObject {
 static PyMethodDef ls9_methods[] =
   { {"addGlobalCallback", reinterpret_cast<PyCFunction>(PyLS9::addGlobalCallback), METH_O, PyDoc_STR("Add a callback for all parameters")}
   , {"addParamCallback", reinterpret_cast<PyCFunction>(PyLS9::addParamCallback), METH_VARARGS, PyDoc_STR("Add a callback for a parameter")}
+  , {"portNames", staticmember<&LS9::portNames, false>, METH_VARARGS | METH_STATIC, PyDoc_STR("get a list of all the port names")}
   , {"get", memberTimeout<&LS9::get, &PyLS9::ls9, true>, METH_VARARGS, PyDoc_STR("get the value of a parameter")}
   , {"set", member<&LS9::set, &PyLS9::ls9, false>, METH_VARARGS, PyDoc_STR("Set the value of a parameter")}
   , {"fade", memberTimeout<&LS9::fade, &PyLS9::ls9, true>, METH_VARARGS, PyDoc_STR("Fade a parameter")}

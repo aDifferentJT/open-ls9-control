@@ -6,24 +6,21 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 def define_macros():
-  platform = distutils.util.get_platform()
-  if platform.startswith('macosx'):
+  if get_platform().startswith('macosx'):
     return [('__MACOSX_CORE__', None), ('TARGET_OS_IPHONE', 0)]
-  elif platform.startswith('win32'):
+  elif get_platform().startswith('win32'):
     return [('__WINDOWS_MM__', None)]
 
 def extra_compile_args():
-  platform = distutils.util.get_platform()
-  if platform.startswith('macosx'):
+  if get_platform().startswith('macosx'):
     return ['--std=c++17']
-  elif platform.startswith('win32'):
+  elif get_platform().startswith('win32'):
     return ['/std:c++17']
 
 def extra_link_args():
-  platform = distutils.util.get_platform()
-  if platform.startswith('macosx'):
+  if get_platform().startswith('macosx'):
     return ['-framework', 'CoreMIDI', '-framework', 'CoreAudio', '-framework', 'CoreFoundation']
-  elif platform.startswith('win32'):
+  elif get_platform().startswith('win32'):
     return []
 
 module1 = Extension \

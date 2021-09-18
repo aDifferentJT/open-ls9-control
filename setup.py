@@ -5,7 +5,7 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 module1 = Extension \
-  ( 'pyls9'
+  ( 'pyopenls9'
   , language = 'c++'
   , define_macros = [('__MACOSX_CORE__', None), ('TARGET_OS_IPHONE', 0)]
   , extra_compile_args = ['--std=c++17']
@@ -16,11 +16,11 @@ module1 = Extension \
   )
 
 setup \
-  ( name = 'pyls9'
+  ( name = 'pyopenls9'
   , version = '1.0.0'
   , description = 'A library to control the Yamaha LS9'
   , author = 'Jonathan Tanner'
-  , url = 'http://github.com/nixCodeX/pyls9'
+  , url = 'http://github.com/nixCodeX/open-ls9-control'
   , long_description = long_description
   , long_description_content_type='text/markdown'
   , ext_modules = [module1]

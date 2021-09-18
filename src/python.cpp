@@ -843,7 +843,7 @@ static PyType_Slot ls9_slots[] =
   };
   
 static auto ls9_spec = PyType_Spec
-  { .name = "pyls9.LS9"
+  { .name = "pyopenls9.LS9"
   , .basicsize = sizeof(PyLS9)
   , .itemsize = 0
   , .flags = Py_TPFLAGS_DEFAULT
@@ -863,10 +863,10 @@ class Parameter:
   channel : int
       )python";
 
-  auto compiled_module = owned_PyObject::steal_ref(Py_CompileString(python_module_string, "pyls9/python.cpp", Py_file_input));
+  auto compiled_module = owned_PyObject::steal_ref(Py_CompileString(python_module_string, "pyopenls9/python.cpp", Py_file_input));
   if (!compiled_module) { return; }
 
-  auto module_object = owned_PyObject::steal_ref(PyImport_ExecCodeModule("pyls9", compiled_module));
+  auto module_object = owned_PyObject::steal_ref(PyImport_ExecCodeModule("pyopenls9", compiled_module));
 
   parameter_type = module_object["Parameter"];
 
@@ -875,13 +875,13 @@ class Parameter:
 
 static auto moduleDef = PyModuleDef
   { .m_base = PyModuleDef_HEAD_INIT
-  , .m_name = "pyls9"
+  , .m_name = "pyopenls9"
   , .m_doc = PyDoc_STR("A library for controlling the Yamaha LS9 mixer")
   , .m_size = -1
   , .m_methods = nullptr
   };
 
-PyMODINIT_FUNC PyInit_pyls9() {
+PyMODINIT_FUNC PyInit_pyopenls9() {
   auto m = owned_PyObject::steal_ref(PyModule_Create(&moduleDef));
   if (!m) { return nullptr; }
 

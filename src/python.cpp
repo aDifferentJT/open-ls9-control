@@ -591,7 +591,10 @@ constexpr auto tuple_concat(std::tuple<Ts...> const & xss) noexcept {
 template <typename Ret>
 auto lift(auto (*f)() -> Ret, PyObject* pyArgs, bool releaseGIL) -> PyObject* {
   auto f2 = [&] {
-    auto gil = releaseGIL ? std::make_optional<scoped_release_gil>() : std::nullopt;
+    auto gil = std::optional<scoped_release_gil>{};
+    if (releaseGIL) {
+      gil.emplace();
+    }
     return (*f)();
   };
   if constexpr (std::is_void_v<Ret>) {
@@ -614,7 +617,10 @@ auto lift_impl(auto (*f)(Args...) -> Ret, PyObject* pyArgs, bool releaseGIL, std
     try {
       auto parsed_args = std::tuple{std::apply(PyObject_conv<Args>::post_parse, std::get<Is>(args))...};
       auto f2 = [&] {
-        auto gil = releaseGIL ? std::make_optional<scoped_release_gil>() : std::nullopt;
+        auto gil = std::optional<scoped_release_gil>{};
+        if (releaseGIL) {
+          gil.emplace();
+        }
         return (*f)(std::move(std::get<Is>(parsed_args))...);
       };
       if constexpr (std::is_void_v<Ret>) {
@@ -639,7 +645,10 @@ auto lift(auto (*f)(Args...) -> Ret, PyObject* pyArgs, bool releaseGIL) -> PyObj
 template <typename T, typename Ret>
 auto lift(auto (T::*f)() -> Ret, T& obj, PyObject* pyArgs, bool releaseGIL) -> PyObject* {
   auto f2 = [&] {
-    auto gil = releaseGIL ? std::make_optional<scoped_release_gil>() : std::nullopt;
+    auto gil = std::optional<scoped_release_gil>{};
+    if (releaseGIL) {
+      gil.emplace();
+    }
     return (obj.*f)();
   };
   if constexpr (std::is_void_v<Ret>) {
@@ -662,7 +671,10 @@ auto lift_impl(auto (T::*f)(Args...) -> Ret, T& obj, PyObject* pyArgs, bool rele
     try {
       auto parsed_args = std::tuple{std::apply(PyObject_conv<Args>::post_parse, std::get<Is>(args))...};
       auto f2 = [&] {
-        auto gil = releaseGIL ? std::make_optional<scoped_release_gil>() : std::nullopt;
+        auto gil = std::optional<scoped_release_gil>{};
+        if (releaseGIL) {
+          gil.emplace();
+        }
         return (obj.*f)(std::move(std::get<Is>(parsed_args))...);
       };
       if constexpr (std::is_void_v<Ret>) {

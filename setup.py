@@ -7,7 +7,8 @@ module1 = Extension(
     extra_compile_args = ['--std=c++17'],
     extra_link_args = ['-framework', 'CoreMIDI', '-framework', 'CoreAudio', '-framework', 'CoreFoundation'],
     include_dirs = ['include'],
-    sources = ['src/RtMidi.cpp', 'src/python.cpp'])
+    sources = ['src/RtMidi.cpp', 'src/python.cpp'],
+    py_limited_api = True)
 
 setup (name = 'pyls9',
        version = '1.0',

@@ -8,6 +8,7 @@
 #include <cstring>
 #include <future>
 #include <iterator>
+#include <optional>
 #include <stdexcept>
 #include <sstream>
 #include <string>

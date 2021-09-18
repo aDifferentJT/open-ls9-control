@@ -15,9 +15,9 @@ def define_macros():
 
 def extra_compile_args():
   if get_platform().startswith('macosx'):
-    return ['--std=c++17']
+    return ['--std=c++20']
   elif get_platform().startswith('win'):
-    return ['/std:c++17']
+    return ['/std:c++20']
 
 def extra_link_args():
   if get_platform().startswith('macosx'):

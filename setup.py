@@ -19,6 +19,14 @@ elif get_platform().startswith('win'):
   libraries = ['winmm']
   extra_compile_args = ['/std:c++20']
   extra_link_args = []
+elif get_platform().startswith('linux'):
+  # Don't properly build as there's no Yamaha driver
+  # But still support packaging the tarball
+  extra_include_dirs = []
+  define_macros = []
+  libraries = []
+  extra_compile_args = []
+  extra_link_args = []
 
 module1 = Extension \
   ( 'pyopenls9'

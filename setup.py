@@ -12,6 +12,7 @@ def define_macros():
     return [('__WINDOWS_MM__', None)]
 
 def extra_compile_args():
+  print('get_platform:', get_platform())
   if get_platform().startswith('macosx'):
     return ['--std=c++17']
   elif get_platform().startswith('win32'):

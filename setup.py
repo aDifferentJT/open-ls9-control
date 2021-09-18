@@ -7,40 +7,30 @@ from pathlib import Path
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
-def define_macros():
-  if get_platform().startswith('macosx'):
-    return [('__MACOSX_CORE__', None), ('TARGET_OS_IPHONE', 0)]
-  elif get_platform().startswith('win'):
-    return [('__WINDOWS_MM__', None)]
-
-def extra_compile_args():
-  if get_platform().startswith('macosx'):
-    return ['--std=c++17']
-  elif get_platform().startswith('win'):
-    return ['/std:c++20']
-
-def extra_link_args():
-  if get_platform().startswith('macosx'):
-    return ['-framework', 'CoreMIDI', '-framework', 'CoreAudio', '-framework', 'CoreFoundation']
-  elif get_platform().startswith('win'):
-    return []
-
-def extra_include_dirs():
-  if get_platform().startswith('macosx'):
-    return []
-  elif get_platform().startswith('win'):
-    return [environ['GSL_INCLUDE']]
+if get_platform().startswith('macosx'):
+  extra_include_dirs = []
+  define_macros = [('__MACOSX_CORE__', None), ('TARGET_OS_IPHONE', 0)]
+  libraries = []
+  extra_compile_args = ['--std=c++17']
+  extra_link_args = ['-framework', 'CoreMIDI', '-framework', 'CoreAudio', '-framework', 'CoreFoundation']
+elif get_platform().startswith('win'):
+  extra_include_dirs = [environ['GSL_INCLUDE']]
+  define_macros = [('__WINDOWS_MM__', None)]
+  libraries = ['winmm']
+  extra_compile_args = ['/std:c++20']
+  extra_link_args = []
 
 module1 = Extension \
   ( 'pyopenls9'
-  , language = 'c++'
-  , define_macros = define_macros()
-  , extra_compile_args = extra_compile_args()
-  , extra_link_args = extra_link_args()
-  , include_dirs = ['include'] + extra_include_dirs()
-  , depends = ['include/LS9.hpp', 'include/RtMidi.h']
   , sources = ['src/python.cpp', 'src/RtMidi.cpp']
-  , py_limited_api = True
+  , include_dirs = ['include'] + extra_include_dirs
+  , define_macros = define_macros
+  , libraries = libraries
+  , extra_compile_args = extra_compile_args
+  , extra_link_args = extra_link_args
+  , depends = ['include/LS9.hpp', 'include/RtMidi.h']
+  , language = 'c++'
+  #, py_limited_api = True
   )
 
 setup \

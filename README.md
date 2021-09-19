@@ -3,7 +3,7 @@
 Open LS9 Control is a C++ library for controlling the Yamaha LS9 mixer.
 There are also Python bindings included known as PyOpenLS9.
 
-It depends on the [Network-MIDI driver for macOS](https://uk.yamaha.com/en/support/updates/nwd_mac.html) or the ([Network Driver for Windows](https://uk.yamaha.com/en/support/updates/nwd_win.html)  and the port name is "<Device Name> Port 1" where <Device Name> is the name from System Preferences.
+It depends on the [Network-MIDI driver for macOS](https://uk.yamaha.com/en/support/updates/nwd_mac.html) or the [Network Driver for Windows](https://uk.yamaha.com/en/support/updates/nwd_win.html)  and the port name is "<Device Name> Port 1" where <Device Name> is the name from System Preferences.
 
 ### Parameters
 
